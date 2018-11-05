@@ -3,51 +3,34 @@ n = size(A,1);
 p = size(B,2);
 
 R0=B-A*X0;
-[S1,D1] = qr(R0,0);
-S(:,1:p) = S1;
-Wr=A*S(:,1:p);
-[W(:,1:p),L(1:p,1:p)]=qr(Wr,0);
-
+[U1,R1] = qr(R0,0);
+T(1:p,1:p)=R1;
+U(:,1:p) = U1;
+Z1=(A')*U(:,1:p);
+[V(:,1:p),L1]=qr(Z1,0);
+T(1:p,p+1:2*p)=L1';
 for k=1:maxit
-    Fr=(A')* W(:,(p*(k-1)+1):(p*k))-S(:,(p*(k-1)+1):(p*k))*((L(p*(k-1)+1:p*k,p*(k-1)+1:p*k))');
-    Fr=Fr-S(:,1:p*k)*((S(:,1:p*k)')*Fr);
-    if k<maxit
-       [S(:,(p*k+1):(p*(k+1))),Rj]=qr(Fr,0);
-       
-%norm(S(:,(p*k+1):(p*(k+1)))'*S(:,(p*k+1):(p*(k+1)))-eye(p,p)) %test 1)
-%norm(S'*S-eye((k+1)*p,(k+1)*p)) %test 2)
-
-
-
-       
-       L((p*(k-1)+1):(p*k),(p*k+1):(p*(k+1)))=Rj';
-       Wr=A*S(:,(p*k+1):(p*(k+1)))-W(:,(p*(k-1)+1):(p*k))*L((p*(k-1)+1):(p*k),(p*k+1):(p*(k+1)));
-       Wr=Wr-W(:,1:p*k)*((W(:,1:p*k)')*Wr);
-       [W(:,(p*k+1):(p*(k+1))),L(p*k+1:p*(k+1),p*k+1:p*(k+1))]=qr(Wr,0);
-       
-%norm(W(:,(p*k+1):(p*(k+1)))'*W(:,(p*k+1):(p*(k+1)))-eye(p,p)) %test 1)
-%norm(W'*W-eye((k+1)*p,(k+1)*p))  %test 2)
-
-
+    Wk=A*V(:,p*(k-1)+1:p*k)-U(:,p*(k-1)+1:p*k)*T(p*(k-1)+1:p*k,p*k+1:p*(k+1));
+    [U(1:n,p*k+1:p*(k+1)),T(p*k+1:p*(k+1),p*k+1:p*(k+1))]=qr(Wk,0);
     
+    Zk=A'*U(1:n,p*k+1:p*(k+1))-V(:,p*(k-1)+1:p*k)*T(p*k+1:p*(k+1),p*k+1:p*(k+1))';
+    [V(1:n,p*k+1:p*(k+1)),T(p*k+1:p*(k+1),p*(k+1)+1:p*(k+2))]=qr(Zk,0);
+       
     %%%
     
     E1=eye((k+1).*p,p);
-    Y=L(1:(k+1)*p,p+1:(k+1)*p)\(E1*L(1:p,1:p));
-    Xk=W(:,1:p*k)*Y;
+    Y=T(1:(k+1)*p,p+1:(k+1)*p)\(E1*T(1:p,1:p));
+    Xk=V(:,1:p*k)*Y;
     REZ(k)=norm(B-A*Xk);    
    
-
     if (REZ(k)<tol)
        break 
     end
     end
     
+    X=Xk; 
     
 end
 
-   X=Xk;
-   % norm(A'*W(:,1:(maxit-1)*p)-S*L(1:(maxit-1)*p,1:maxit*p)') %test 3
-
-
-end
+  
+   

@@ -2,15 +2,15 @@ clear, clc
 
 n=500;
 tol=1e-8;
-maxit=200;
-p=5;
+maxit=100;
+p=10;
 
 B=randn(n,p);
 %B=[B,(B + randn(n,1)/n)];
 
 %A=2*eye(n) + randn(n,n)/n;      % matice s vl. c. 2 porusena o nahodnou perturbaci
-%A=2*eye(n) + 10*randn(n,n)/n;      % matice s vl. c. 2 porusena o nahodnou perturbaci
-A=blkdiag(2*eye(n/2), -4*eye(n/2)) + 10*randn(n,n)/n;      % matice s vl. c. 2 porusena o nahodnou perturbaci
+A=2*eye(n) + 10*randn(n,n)/n;      % matice s vl. c. 2 porusena o nahodnou perturbaci
+%A=blkdiag(2*eye(n/2), -4*eye(n/2)) + 10*randn(n,n)/n;      % matice s vl. c. 2 porusena o nahodnou perturbaci
 
 X0=zeros(n,p);
 %plot(eig(A),'*')                   % -> A ma klastrovana vl. cisla
@@ -49,13 +49,13 @@ semilogy(REZ3), title('residuum gmres buid-in'),
 
 %%%
 
-% disp('BLSQR:')
-% tic
-% [X4,REZ4]=BLSQR(A,B,tol,maxit,X0);
-% toc
-% 
-% subplot(2,3,4)
-% semilogy(REZ4), title('residuum BLSQR'),
+disp('BLSQR:')
+tic
+[X4,REZ4]=BLSQR(A,B,tol,maxit,X0);
+toc
+
+subplot(2,3,4)
+semilogy(REZ4), title('residuum BLSQR'),
 
 %%%
 
