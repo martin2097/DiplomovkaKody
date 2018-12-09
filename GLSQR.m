@@ -1,6 +1,7 @@
 function [X,REZ] = GLSQR(A,B,tol,maxit,X0)
 n = size(A,1);
 p = size(B,2);
+sw=0;
 
 R0=B-A*X0;
 
@@ -32,6 +33,10 @@ for k=1:maxit
     
     REZ(k)=norm(B-A*Xk);
     
+    if rank(S,10e-14)<p*(k+1) 
+       sw=1; 
+    end
+    
     if REZ(k)<tol
        break 
     end    
@@ -39,5 +44,10 @@ for k=1:maxit
 end
 
 X=Xk;
+
+if sw==1
+   disp('Deflace!')
+end
+
 
 end

@@ -1,6 +1,7 @@
 function [X,REZ] = BGMRES(A,B,tol,maxit,X0)
 n = size(A,1);
 p = size(B,2);
+sw=0;
 
 R0=B-A*X0;
 [V1,R] = qr(R0,0);
@@ -23,6 +24,11 @@ for j=1:maxit
     E1=eye((j+1).*p,p);
     Y=H\(E1*R);
     Xk=X0+U(:,1:(j.*p))*Y;
+    
+    if rank(U,10e-14)<j*p 
+       sw=1; 
+    end
+        
     REZ(j)=norm(B-A*Xk);
     if REZ(j)<tol
        break 
@@ -31,6 +37,8 @@ end
 %%%
 X=Xk;
 
-
+if sw==1
+   disp('Deflace!')
+end
 
 end

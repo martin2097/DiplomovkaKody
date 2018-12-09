@@ -1,7 +1,7 @@
 function [X,REZ] = GGMRES(A,B,tol,maxit,X0)
 n = size(A,1);
 p = size(B,2);
-
+sw=0;
 
 R0=B-A*X0;
 V1=R0/norm(R0,'fro');
@@ -36,6 +36,10 @@ for j=1:maxit
         Xj=Xj+U(:,p.*(i-1)+1:p.*i).*y(i);    
     end
     
+    if rank(U,10e-14)<p*j 
+       sw=1;
+    end
+        
     REZ(j)=norm(B-A*Xj);
     
     if REZ(j)<tol
@@ -45,8 +49,9 @@ end
 
 X=Xj;
 %%%
-
-
+if sw==1
+   disp('Deflace!')
+end
 
 
 end
