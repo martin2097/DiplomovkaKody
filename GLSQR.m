@@ -1,7 +1,22 @@
-function [X,REZ] = GLSQR(A,B,tol,maxit,X0)
+function [X, REZ, ABS_E] = GLSQR(A, B, X_EXACT, maxit, X0, tol_stop)
 n = size(A,1);
 p = size(B,2);
-sw=0;
+
+if ~exist('tol_stop','var')
+     tol_stop = 1e-10;
+ end
+ 
+ if ~exist('X0','var')
+     X0=zeros(n,p);
+ end
+ 
+ if ~exist('maxit','var')
+     maxit = 200;
+ end
+ 
+ if ~exist('X_EXACT','var')
+     X_EXACT=zeros(n,p);
+ end
 
 R0=B-A*X0;
 
@@ -31,23 +46,15 @@ for k=1:maxit
         Xk=Xk+S(:,p*(i-1)+1:p*i)*y(i);    
     end
     
-    REZ(k)=norm(B-A*Xk);
+    REZ(k)=norm(B-A*Xk);    
+    ABS_E(k)=norm(X_EXACT-Xk);
     
-    if rank(S,10e-14)<p*(k+1) 
-       sw=1; 
-    end
-    
-    if REZ(k)<tol
+    if REZ(k)<tol_stop
        break 
     end    
     
 end
 
 X=Xk;
-
-if sw==1
-   disp('Deflace!')
-end
-
 
 end

@@ -1,6 +1,8 @@
-function [X, REZ, ABS_E] = BLSQRdef(A, B, X_EXACT, maxit, X0, tol_stop, tol_def)
-n = size(A,1);
+function [X, REZ, ABS_E] = BLSQRimg(B, X_EXACT, maxit, X0, tol_stop, tol_def)
+n = size(B,1);
 p = size(B,2);
+sigma = 1;
+
  if ~exist('tol_def','var')
      tol_def = 1e-12;
  end
@@ -24,18 +26,17 @@ p = size(B,2);
 Usize = zeros(1,maxit+2);
 Vsize = zeros(1,maxit+2);
 
-R0=B-A*X0;
+R0=B-imgaussfilt(X0,sigma);
 [U1,R1] = qr(R0,0);
 
 %test deflacie v U1
 it=0;
 for i=1:p
     it=it+1;
-    if norm(R1(:,it))<tol_def
+    if norm(U1(:,it))<tol_def
         U1(:,it)=[];
         R1(it,:)=[];
         it=it-1;
-        disp('defInitR1');
     end
 end
 Usize(1,2)= size(U1,2);
@@ -50,11 +51,10 @@ Z1=(A')*U(:,1:Usize(1,2));
 it=0;
 for i=1:Usize(1,2)
     it=it+1;
-    if norm(Z1(:,it))<tol_def
+    if norm(V1(:,it))<tol_def
         V1(:,it)=[];
         L1(it,:)=[];
         it=it-1;
-        disp('defInitZ1');
     end
 end
 Vsize(1,2)= p;
@@ -71,11 +71,10 @@ for k=1:maxit
     it=0;
     for i=1:(Vsize(1,k+2)-Vsize(1,k+1))
         it=it+1;
-        if norm(R_k(:,it))<tol_def
+        if norm(U_k(:,it))<tol_def
             U_k(:,it)=[];
             R_k(it,:)=[];
             it=it-1;
-            disp('def');
         end
     end
     Usize(1,k+2)=Usize(1,k+1)+size(U_k,2);
@@ -94,7 +93,6 @@ for k=1:maxit
             V_k(:,it)=[];
             L_k(it,:)=[];
             it=it-1;
-            disp('def');
         end
     end
     
@@ -116,7 +114,7 @@ for k=1:maxit
        break 
     end
 end
-
+   
 X=Xk; 
 
 end

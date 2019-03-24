@@ -1,7 +1,22 @@
-function [X,REZ] = GGMRES(A,B,tol,maxit,X0)
+function [X, REZ, ABS_E] = GGMRES(A, B, X_EXACT, maxit, X0, tol_stop)
 n = size(A,1);
 p = size(B,2);
-sw=0;
+
+if ~exist('tol_stop','var')
+     tol_stop = 1e-10;
+ end
+ 
+ if ~exist('X0','var')
+     X0=zeros(n,p);
+ end
+ 
+ if ~exist('maxit','var')
+     maxit = 200;
+ end
+ 
+ if ~exist('X_EXACT','var')
+     X_EXACT=zeros(n,p);
+ end
 
 R0=B-A*X0;
 V1=R0/norm(R0,'fro');
@@ -35,23 +50,15 @@ for j=1:maxit
     for i=1:j
         Xj=Xj+U(:,p.*(i-1)+1:p.*i).*y(i);    
     end
-    
-    if rank(U,10e-14)<p*j 
-       sw=1;
-    end
         
     REZ(j)=norm(B-A*Xj);
+    ABS_E(j)=norm(X_EXACT-Xj);
     
-    if REZ(j)<tol
+    if REZ(j)<tol_stop
        break 
     end    
 end
 
 X=Xj;
-%%%
-if sw==1
-   disp('Deflace!')
-end
-
 
 end
